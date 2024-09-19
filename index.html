@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+            margin-top: 30px;
+        }
+
+        #taskForm {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        #taskForm input,
+        #taskForm button {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #taskForm button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #taskForm button:hover {
+            background-color: #45a049;
+        }
+
+        #taskTable {
+            width: 60%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #taskTable th,
+        #taskTable td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        #taskTable th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        #taskTable td {
+            font-size: 16px;
+        }
+
+        #taskTable button {
+            background-color: #ff4c4c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        #taskTable button:hover {
+            background-color: #ff1c1c;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>To-Do List</h1>
+    <form id="taskForm">
+        <input type="text" id="taskName" placeholder="Task Name" required>
+        <input type="number" id="taskDuration" placeholder="Duration (minutes)" required>
+        <button type="submit">Add Task</button>
+        <button type="button" onclick="localStorage.clear(); location.reload();">Clear All</button>
+    </form>
+    <table id="taskTable">
+        <thead>
+            <tr>
+                <th>Task</th>
+                <th>Duration (In Minutes)</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script>
+        const taskForm = document.getElementById('taskForm');
+        const taskTable = document.getElementById('taskTable').getElementsByTagName('tbody')[0];
+
+        document.addEventListener('DOMContentLoaded', loadTasks);
+
+        taskForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            const taskName = document.getElementById('taskName').value;
+            const taskDuration = document.getElementById('taskDuration').value;
+            const task = { name: taskName, duration: taskDuration };
+            addTaskToTable(task);
+            saveTask(task);
+            taskForm.reset();
+        });
+
+        function addTaskToTable(task) {
+            const taskRow = document.createElement('tr');
+            taskRow.innerHTML = `
+                <td>${task.name}</td>
+                <td>${task.duration}</td>
+                <td><button onclick="deleteTask(this)">Delete</button></td>
+            `;
+            taskTable.appendChild(taskRow);
+        }
+
+        function saveTask(task) {
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks.push(task);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        function loadTasks() {
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks.forEach(addTaskToTable);
+        }
+
+        function deleteTask(button) {
+            const row = button.parentElement.parentElement;
+            const taskName = row.children[0].textContent;
+            row.remove();
+            let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks = tasks.filter(task => task.name !== taskName);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+    </script>
+</body>
+
+</html>
